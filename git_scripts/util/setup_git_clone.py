@@ -12,7 +12,7 @@ def clone_public_repo(git_url, git_branch):
     if ".git" not in git_url:
         repo = repo_split[-1]
     else:
-        repo = repo_split[-1].rstrip('.git')
+        repo = repo_split[-1].split('.')[0]
     
     clone_cmd = f"git clone -b {git_branch} https://github.com/{username}/{repo}.git"
 
@@ -35,7 +35,7 @@ def clone_private_repo(git_url, git_branch, git_token, ssh_private_key):
         if ".git" not in git_url:
             repo = repo_split[-1]
         else:
-            repo = repo_split[-1].rstrip('.git')
+            repo = repo_split[-1].split('.')[0]
         
         clone_cmd = f"git clone -b {git_branch} https://{git_token}@github.com/{username}/{repo}.git"
 
@@ -52,7 +52,7 @@ def clone_private_repo(git_url, git_branch, git_token, ssh_private_key):
             repo = repo_split[-1]
             clone_cmd = f"git clone -b {git_branch} {git_url}.git"
         else:
-            repo = repo_split[-1].rstrip('.git')
+            repo = repo_split[-1].split('.')[0]
             clone_cmd = f"git clone -b {git_branch} {git_url}"
 
         private_key_file = create_ssh_path(ssh_private_key)
