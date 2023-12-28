@@ -24,7 +24,7 @@ data:
     remote_logging = False
 
     [database]
-    sql_alchemy_conn = postgresql://postgres:postgres@airflow-postgresql.airflow-stg:5432/postgres?sslmode=disable
+    sql_alchemy_conn = postgresql://postgres:postgres@postgresdb.airflow-stg.svc:5432/postgres?sslmode=disable
     
     [kubernetes]
     airflow_configmap = airflow-config

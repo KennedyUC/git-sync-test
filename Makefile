@@ -1,3 +1,5 @@
+SHELL = bash
+
 IMG_TAG ?= latest
 DOCKER_USERNAME ?= ""
 DOCKER_PASSWORD ?= ""
@@ -33,3 +35,8 @@ deploy-argocd-operator:
 deploy-argocd-app:
 	@echo "✅ Deploying ArgoCD Application for $(ENV) ===============>"
 	@pushd "argocd/applications"; kubectl apply -f airflow-$(ENV); popd
+
+.PHONY: deploy-airflow
+deploy-airflow:
+	@echo "✅ Deploying Airflow for $(ENV) ===============>"
+	@pushd "airflow/overlays"; kustomize build $(ENV) | kubectl apply -f -; popd

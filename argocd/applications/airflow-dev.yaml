@@ -7,7 +7,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/KennedyUC/git-sync-test.git
-    targetRevision: main
+    targetRevision: dev
     path: airflow/overlays/dev
   destination:
     server: 'https://kubernetes.default.svc'
