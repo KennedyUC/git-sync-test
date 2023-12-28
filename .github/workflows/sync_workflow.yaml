@@ -40,8 +40,7 @@ jobs:
     needs: [setup-project-environment]
     env:
       ENV: ${{ needs.setup-project-environment.outputs.env_name }}
-      SHA: ${{ needs.setup-project-environment.outputs.sha }}
-      IMG_TAG: ${{ env.ENV }}-${{ env.SHA }}
+      IMG_TAG: ${{ needs.setup-project-environment.outputs.env_name }}-${{ needs.setup-project-environment.outputs.sha }}
       
     steps:
     - name: Checkout GitHub Action
@@ -63,8 +62,7 @@ jobs:
     needs: [setup-project-environment, build-and-push-containers]
     env:
       ENV: ${{ needs.setup-project-environment.outputs.env_name }}
-      SHA: ${{ needs.setup-project-environment.outputs.sha }}
-      IMG_TAG: ${{ env.ENV }}-${{ env.SHA}}
+      IMG_TAG: ${{ needs.setup-project-environment.outputs.env_name }}-${{ needs.setup-project-environment.outputs.sha }}
 
     steps:
       - name: Check out code
