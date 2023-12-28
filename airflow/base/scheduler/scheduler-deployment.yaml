@@ -118,7 +118,6 @@ spec:
           volumeMounts:
           - name: dags
             mountPath: /opt/airflow/dag
-            readOnly: True
 
         - name: scheduler
           image: apache/airflow:2.7.2

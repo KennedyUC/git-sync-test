@@ -13,6 +13,9 @@ RUN pip install click
 
 RUN chown -R airflow-git /app/
 
+RUN mkdir -p /opt/airflow/dag && \
+    chown airflow-git /opt/airflow/dag
+
 USER airflow-git
 
 CMD ["python", "/app/main.py"]
