@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Job
+metadata:
+  name: airflow-create-user
+spec:
+  template:
+    spec:
+      containers:
+        - name: create-user
+          env:
+            - name: AIRFLOW_USER
+              value: Kennedy
+            - name: AIRFLOW_USER_ROLE
+              value: Admin
+            - name: AIRFLOW_USER_EMAIL
+              value: kennedy@admin.com
+            - name: AIRFLOW_USER_FIRSTNAME
+              value: Kennedy
+            - name: AIRFLOW_USER_LASTNAME
+              value: Uche
+            - name: AIRFLOW_USER_PASSWORD
+              value: "pass@prod"

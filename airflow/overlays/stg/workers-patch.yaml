@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: airflow-worker
+spec:
+  template:
+    spec:
+      containers:
+        - name: git-sync
+          image: kennedyuche/airflow-git-sync:v1.0.0
+          env:
+            - name: GIT_TARGET_BRANCH
+              value: "stg"
+            - name: GIT_REPO_URL
+              value: "https://github.com/KennedyUC/git-sync-test.git"
+            - name: DAGS_TARGET_FOLDER
+              value: "root"

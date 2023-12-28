@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgresdb
+  labels:
+    tier: airflow
+    component: airflow-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: airflow
+      component: airflow-db
+  serviceName: postgresdb
+  template:
+    metadata:
+      labels:
+        tier: airflow
+        component: airflow-db
+    spec:
+      containers:
+        - name: postgresdb
+          image: postgres:16.1
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-db-secret
+                  key: postgres_db
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-db-secret
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-db-secret
+                  key: password
+          volumeMounts:
+            - mountPath: /var/lib/postgres/data
+              name: db-data
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: db-data
+  volumeClaimTemplates:
+    - metadata:
+        name: db-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 10Gi

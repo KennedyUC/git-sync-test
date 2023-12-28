@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- create-user-job.yaml
+- migrate-database-job.yaml
+- migrate-database-job-serviceaccount.yaml
+- create-user-job-serviceaccount.yaml

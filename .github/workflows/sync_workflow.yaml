@@ -1,0 +1,99 @@
+name: Airflow-Git-Sync Workflow
+
+on:
+  push:
+    branches:
+      - dev
+      - stg
+      - prod
+
+jobs:
+  setup-project-environment:
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.project-env.outputs.env_name }}
+      sha: ${{ steps.commit-sha.outputs.sha }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set Project Environment
+      id: project-env
+      run: |
+        if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          echo "env_name=prod" >> $GITHUB_OUTPUT
+        elif [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+          echo "env_name=dev" >> $GITHUB_OUTPUT
+        elif [ "${{ github.ref }}" = "refs/heads/stg" ]; then
+          echo "env_name=stg" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Get Short Github Commit SHA
+      id: commit-sha
+      run: |
+        echo "sha=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+  build-and-push-containers:
+    runs-on: ubuntu-20.04
+    needs: [setup-project-environment]
+    env:
+      ENV: ${{ needs.setup-project-environment.outputs.env_name }}
+      SHA: ${{ needs.setup-project-environment.outputs.sha }}
+      IMG_TAG: ${{ env.ENV }}-${{ env.SHA }}
+      
+    steps:
+    - name: Checkout GitHub Action
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Authenticate to Docker Container Registry
+      run: make DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} docker-login
+    
+    - name: Build the docker container image
+      run: make ENV=${{ env.ENV }} DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} IMG_TAG=${{ env.IMG_TAG }} docker-build
+
+    - name: Push the docker container image
+      run: make ENV=${{ env.ENV }} DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} IMG_TAG=${{ env.IMG_TAG }} docker-push
+
+  update-manifest-files:
+    runs-on: ubuntu-20.04
+    needs: [setup-project-environment, build-and-push-containers]
+    env:
+      ENV: ${{ needs.setup-project-environment.outputs.env_name }}
+      SHA: ${{ needs.setup-project-environment.outputs.sha }}
+      IMG_TAG: ${{ env.ENV }}-${{ env.SHA}}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install yq
+        run: |
+          echo "🏗️ Installing yq to the workflow runner =========>"
+          sudo apt-get update && \
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 && \
+          sudo chmod a+x /usr/local/bin/yq
+
+      - name: Update the manifest for ${{ env.ENV }}
+        run: |
+          echo "🏗️ Updating the kustomize patches scripts =============>"
+          yq e -i '.spec.template.spec.containers[0].image = "${{ secrets.DOCKER_USERNAME}}/airflow-git-sync:${{ env.IMG_TAG }}"' \
+                                    airflow/overlays/${{ env.ENV }}/scheduler-patch.yaml
+
+          yq e -i '.spec.template.spec.containers[0].image = "${{ secrets.DOCKER_USERNAME}}/airflow-git-sync:${{ env.IMG_TAG }}"' \
+                                    airflow/overlays/${{ env.ENV }}/workers-patch.yaml
+
+      - name: Commit Changes
+        run: |
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"      
+            git add .
+            git commit -m "updated container tag from Github Actions"
+
+      - name: Push Changes
+        run: git push origin ${{ env.ENV }} | true

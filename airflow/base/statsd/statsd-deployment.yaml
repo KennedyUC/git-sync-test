@@ -1,0 +1,62 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: airflow-statsd
+  labels:
+    tier: airflow
+    component: statsd
+    release: airflow
+    chart: "airflow-1.2.0"
+    heritage: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: airflow
+      component: statsd
+      release: airflow
+  template:
+    metadata:
+      labels:
+        tier: airflow
+        component: statsd
+        release: airflow
+    spec:
+      nodeSelector:
+        {}
+      affinity:
+        {}
+      tolerations:
+        []
+      serviceAccountName: airflow-statsd
+      securityContext:
+        runAsUser: 65534
+      restartPolicy: Always
+      containers:
+        - name: statsd
+          image: apache/airflow:airflow-statsd-exporter-2021.04.28-v0.17.0
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--statsd.mapping-config=/etc/statsd-exporter/mappings.yml"
+          resources:
+            {}
+          ports:
+            - name: statsd-ingest
+              protocol: UDP
+              containerPort: 9125
+            - name: statsd-scrape
+              containerPort: 9102
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9102
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9102
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
