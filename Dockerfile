@@ -11,6 +11,8 @@ COPY git_scripts /app/
 
 RUN pip install click
 
+RUN chown -R airflow-git /app/
+
 USER airflow-git
 
 CMD ["python", "/app/main.py"]
