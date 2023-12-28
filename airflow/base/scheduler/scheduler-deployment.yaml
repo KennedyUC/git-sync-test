@@ -106,8 +106,6 @@ spec:
         - name: git-sync
           image: kennedyuche/airflow-git-sync:v1.0.0
           imagePullPolicy: IfNotPresent
-          securityContext:
-            runAsUser: 3446
           env:
             - name: GIT_TARGET_BRANCH
               value: "main"
