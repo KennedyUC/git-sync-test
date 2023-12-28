@@ -1,11 +1,14 @@
 name: Airflow-Git-Sync Workflow
 
 on:
-  push:
+  pull_request:
+    types:
+    - closed
     branches:
-      - dev
-      - stg
-      - prod
+    - dev
+    - stg
+    - prod
+  workflow_dispatch: {}
 
 jobs:
   setup-project-environment:
