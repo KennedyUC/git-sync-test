@@ -9,4 +9,6 @@ COPY git_scripts /app/
 
 RUN pip install click
 
+USER root
+
 CMD ["python", "/app/main.py"]
