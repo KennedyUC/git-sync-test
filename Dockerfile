@@ -10,4 +10,4 @@ RUN pip install click
 
 USER airflow-git
 
-CMD ["python", "/app/git_scripts/main.py"]
+CMD ["python", "/app/main.py"]

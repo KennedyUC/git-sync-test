@@ -1,6 +1,6 @@
 import subprocess
 import logging
-from setup_ssh_key import create_ssh_path
+from .setup_ssh_key import create_ssh_path
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("__Airflow GitHub Synchronization__")
