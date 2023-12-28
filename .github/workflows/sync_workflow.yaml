@@ -55,10 +55,10 @@ jobs:
       run: make DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} docker-login
     
     - name: Build the docker container image
-      run: make ENV=${{ env.ENV }} DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} IMG_TAG=${{ env.IMG_TAG }} docker-build
+      run: make  IMG_TAG=${{ env.IMG_TAG }} DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} docker-build
 
     - name: Push the docker container image
-      run: make ENV=${{ env.ENV }} DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} IMG_TAG=${{ env.IMG_TAG }} docker-push
+      run: make IMG_TAG=${{ env.IMG_TAG }} DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} docker-push
 
   update-manifest-files:
     runs-on: ubuntu-20.04
