@@ -1,3 +1,4 @@
+SHELL := bash
 IMG_TAG ?= latest
 DOCKER_USERNAME ?= ""
 DOCKER_PASSWORD ?= ""
@@ -7,7 +8,7 @@ ENV ?= dev
 .PHONY: docker-build
 docker-build:
 	@echo "✅ Building the container image for airflow-git-sync ===============>"
-	@docker build . -t $(DOCKER_USERNAME)/$(IMG_NAME):$(IMG_TAG)-$(ENV)
+	@docker build . -t $(DOCKER_USERNAME)/$(IMG_NAME):$(IMG_TAG)
 
 .PHONY: docker-login
 docker-login:
@@ -17,7 +18,7 @@ docker-login:
 .PHONY: docker-push
 docker-push:
 	@echo "✅ Pushing to the Docker Registry ===============>"
-	@docker push $(DOCKER_USERNAME)/$(IMG_NAME):$(IMG_TAG)-$(ENV)
+	@docker push $(DOCKER_USERNAME)/$(IMG_NAME):$(IMG_TAG)
 
 .PHONY: deploy-argocd-crds
 deploy-argocd-crds:
@@ -33,3 +34,8 @@ deploy-argocd-operator:
 deploy-argocd-app:
 	@echo "✅ Deploying ArgoCD Application for $(ENV) ===============>"
 	@pushd "argocd/applications"; kubectl apply -f airflow-$(ENV); popd
+
+.PHONY: deploy-airflow
+deploy-airflow:
+	@echo "✅ Deploying Airflow for $(ENV) ===============>"
+	@pushd "airflow/overlays"; kustomize build $(ENV) | kubectl apply -f -; popd
