@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: git-sync
-          image: kennedyuche/airflow-git-sync:dev-83ad44f
+          image: kennedyuche/airflow-git-sync:dev-a9bdeb4
           env:
             - name: GIT_TARGET_BRANCH
               value: "dev"
