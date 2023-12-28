@@ -17,7 +17,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GIT_TOKEN }}
 
     - name: Set Project Environment
       id: project-env
@@ -46,7 +46,7 @@ jobs:
     - name: Checkout GitHub Action
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GIT_TOKEN }}
 
     - name: Authenticate to Docker Container Registry
       run: make DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME}} DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }} docker-login
@@ -68,7 +68,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
         with:
-            token: ${{ secrets.GITHUB_TOKEN }}
+            token: ${{ secrets.GIT_TOKEN }}
 
       - name: Install yq
         run: |
