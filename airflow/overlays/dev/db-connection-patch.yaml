@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: db-connection
 data:
-  connection: postgresql://postgres:postgres@airflow-postgresql.airflow-dev:5432/postgres?sslmode=disable
+  connection: postgresql://postgres:postgres@postgresdb.airflow-dev.svc:5432/postgres?sslmode=disable
