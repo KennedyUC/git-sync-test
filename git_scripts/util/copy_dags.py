@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("__Airflow GitHub Synchronization__")
 
 def copy_airflow_dag(git_repo, dags_folder):
-    destination_path = '/opt/airflow/dag'
+    destination_path = 'git/dags'
     
     if dags_folder == "root":
         try:
