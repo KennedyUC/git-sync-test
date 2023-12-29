@@ -7,11 +7,11 @@ spec:
     spec:
       containers:
         - name: git-sync
-          image: kennedyuche/airflow-git-sync:dev-6198451
+          image: kennedyuche/airflow-git-sync:dev-58c98f2
           env:
             - name: GIT_TARGET_BRANCH
               value: "dev"
             - name: GIT_REPO_URL
               value: "https://github.com/KennedyUC/git-sync-test.git"
             - name: DAGS_TARGET_FOLDER
-              value: "root"
+              value: "airflow-dags"
