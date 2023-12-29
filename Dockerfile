@@ -10,9 +10,8 @@ RUN apt update && \
 
 COPY git_scripts /app/
 
-RUN mkdir -p /opt/airflow/dag && \
-    chown -R airflow-git /app/ && \
-    chown -R airflow-git /opt/airflow/dag
+RUN mkdir -p git/dags && \
+    chown -R airflow-git /app/
 
 USER airflow-git
 
