@@ -92,6 +92,11 @@ spec:
                 secretKeyRef:
                   name: airflow-webserver-secret-key
                   key: webserver-secret-key
+            - name: AIRFLOW__CELERY__CELERY_RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-result-backend
+                  key: connection
             - name: AIRFLOW__CELERY__RESULT_BACKEND
               valueFrom:
                 secretKeyRef:
@@ -143,6 +148,11 @@ spec:
                 secretKeyRef:
                   name: airflow-webserver-secret-key
                   key: webserver-secret-key
+            - name: AIRFLOW__CELERY__CELERY_RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-result-backend
+                  key: connection
             - name: AIRFLOW__CELERY__RESULT_BACKEND
               valueFrom:
                 secretKeyRef:
@@ -184,6 +194,7 @@ spec:
           args: 
             - bash
             - /clean-logs
+          
           env:
             - name: AIRFLOW__LOG_RETENTION_DAYS
               value: "15"
@@ -198,3 +209,7 @@ spec:
           emptyDir: {}
         - name: logs
           emptyDir: {}
+        - name: git-secret
+          secret:
+            defaultMode: 0400
+            secretName: git-credentials
