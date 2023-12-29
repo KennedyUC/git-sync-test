@@ -39,3 +39,13 @@ deploy-argocd-app:
 deploy-airflow:
 	@echo "✅ Deploying Airflow for $(ENV) ===============>"
 	@pushd "airflow/overlays"; kustomize build $(ENV) | kubectl apply -f -; popd
+
+.PHONY: cleanup
+cleanup:
+	@echo "✅ Deleting Airflow for $(ENV) ===============>"
+	@pushd "airflow/overlays"; kustomize build $(ENV) | kubectl delete -f -; popd
+	@sleep 1
+	@echo "✅ Deleting ArgoCD for $(ENV) ===============>"
+	@pushd "argocd"; kubectl delete -f crd; popd
+	@pushd "argocd"; kubectl delete -f operator; popd
+	@pushd "argocd/applications"; kubectl delete -f airflow-$(ENV); popd

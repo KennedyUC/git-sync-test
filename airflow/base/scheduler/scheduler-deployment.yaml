@@ -117,7 +117,7 @@ spec:
               value: "root"
           volumeMounts:
           - name: dags
-            mountPath: /opt/airflow/dag
+            mountPath: git/dags
 
         - name: scheduler
           image: apache/airflow:2.7.2
