@@ -3,6 +3,7 @@ import logging
 from util.copy_dags import *
 from util.setup_git_clone import *
 import os
+import time
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("__Airflow GitHub Synchronization__")
@@ -28,6 +29,9 @@ def main(git_branch, git_url, private_repo, git_token, dags_folder, ssh_private_
         git_repo = clone_private_repo(git_url, git_branch, git_token, ssh_private_key)
 
     copy_airflow_dag(git_repo, dags_folder)
+
+    while True:
+        time.sleep(5)
 
 if __name__ == '__main__':
     main()
