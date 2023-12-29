@@ -96,11 +96,11 @@ spec:
                 secretKeyRef:
                   name: airflow-webserver-secret-key
                   key: webserver-secret-key
-            # - name: AIRFLOW__CELERY__CELERY_RESULT_BACKEND
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: airflow-result-backend
-            #       key: connection
+            - name: AIRFLOW__CELERY__CELERY_RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-result-backend
+                  key: connection
             - name: AIRFLOW__CELERY__RESULT_BACKEND
               valueFrom:
                 secretKeyRef:

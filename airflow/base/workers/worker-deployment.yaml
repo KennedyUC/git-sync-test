@@ -6,6 +6,8 @@ metadata:
     tier: airflow
     component: worker
     release: airflow
+    chart: "airflow-1.2.0"
+    heritage: Helm
 spec:
   serviceName: airflow-worker
   replicas: 1
@@ -20,7 +22,18 @@ spec:
         tier: airflow
         component: worker
         release: airflow
+      annotations:
+        checksum/metadata-secret: dcbb26b06a9d686bf5fedceff6d4024447053fded58a37271cdfef14f8c8c800
+        checksum/result-backend-secret: 81fd0bc85dc6b240d98a984a508d94f010a012348f2ce63d2a262b0cbc6e0356
+        checksum/pgbouncer-config-secret: da52bd1edfe820f0ddfacdebb20a4cc6407d296ee45bcb500a6407e2261a5ba2
+        checksum/webserver-secret-key: 79887cc1c2c60c2d795d853d494941cb57fbb70d009891903fc993ee7d8af03b
+        checksum/airflow-config: aea4f92ef86c687e5d97ba4bdb0b444a5ba44300ce2d568b1c1b554e87d799c8
+        checksum/extra-configmaps: 2e44e493035e2f6a255d08f8104087ff10d30aef6f63176f1b18f75f73295598
+        checksum/extra-secrets: bb91ef06ddc31c0c5a29973832163d8b0b597812a793ef911d33b622bc9d1655
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
     spec:
+      nodeSelector:
+        {}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -30,6 +43,8 @@ spec:
                   component: worker
               topologyKey: kubernetes.io/hostname
             weight: 100
+      tolerations:
+        []
       terminationGracePeriodSeconds: 600
       restartPolicy: Always
       serviceAccountName: airflow-worker
@@ -38,6 +53,8 @@ spec:
         fsGroup: 65533
       initContainers:
         - name: wait-for-airflow-migrations
+          resources:
+            {}
           image: apache/airflow:2.7.2
           imagePullPolicy: IfNotPresent
           args:          
@@ -108,6 +125,11 @@ spec:
                 secretKeyRef:
                   name: airflow-webserver-secret-key
                   key: webserver-secret-key
+            - name: AIRFLOW__CELERY__CELERY_RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-result-backend
+                  key: connection
             - name: AIRFLOW__CELERY__RESULT_BACKEND
               valueFrom:
                 secretKeyRef:
@@ -118,6 +140,7 @@ spec:
                 secretKeyRef:
                   name: airflow-broker-url
                   key: connection
+        
       containers:
         - name: git-sync
           image: kennedyuche/airflow-git-sync:v1.0.0
@@ -142,6 +165,8 @@ spec:
           args:
             - |
               exec airflow celery worker
+          resources:
+            {}
           ports:
             - name: worker-logs
               containerPort: 8793
@@ -159,6 +184,8 @@ spec:
             - name: dags
               mountPath: /opt/airflow/dags
               readOnly: True
+          envFrom:          
+            []
           env:
             - name: DUMB_INIT_SETSID
               value: "0"          
@@ -177,6 +204,11 @@ spec:
                 secretKeyRef:
                   name: airflow-webserver-secret-key
                   key: webserver-secret-key
+            - name: AIRFLOW__CELERY__CELERY_RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-result-backend
+                  key: connection
             - name: AIRFLOW__CELERY__RESULT_BACKEND
               valueFrom:
                 secretKeyRef:
@@ -187,6 +219,7 @@ spec:
                 secretKeyRef:
                   name: airflow-broker-url
                   key: connection        
+                  
         - name: worker-log-groomer
           image: apache/airflow:2.7.2
           imagePullPolicy: IfNotPresent
@@ -208,6 +241,10 @@ spec:
             name: airflow-config
         - name: dags
           emptyDir: {}
+        - name: git-secret
+          secret:
+            defaultMode: 0400
+            secretName: git-credentials
   volumeClaimTemplates:
     - metadata:
         name: logs
