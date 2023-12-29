@@ -1,5 +1,6 @@
 import shutil
 import logging
+import time
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("__Airflow GitHub Synchronization__")
@@ -20,5 +21,6 @@ def copy_airflow_dag(git_repo, dags_folder):
         except Exception as exception:
             log.info(exception)
 
+    time.sleep(5)
     shutil.rmtree(git_repo)
     log.info(f'{git_repo} removed for cleanup purposes')
