@@ -14,4 +14,4 @@ spec:
             - name: GIT_REPO_URL
               value: "https://github.com/KennedyUC/git-sync-test.git"
             - name: DAGS_TARGET_FOLDER
-              value: "root"
+              value: "airflow-dags"

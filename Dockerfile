@@ -14,7 +14,8 @@ RUN pip install click
 RUN chown -R airflow-git /app/
 
 RUN mkdir -p /opt/airflow/dag && \
-    chown -R 3446:3446 /opt/airflow/dag
+    chown -R 3446:3446 /opt/airflow/dag && \
+    chmod -R u+w /opt/airflow/dag
 
 USER airflow-git
 
