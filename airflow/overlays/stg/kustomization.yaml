@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: airflow-stg
+
+resources:
+- namespace.yaml
+- ../../base
+
+patches:
+- path: scheduler-patch.yaml
+  target:
+    kind: Deployment
+    name: airflow-scheduler
+- path: workers-patch.yaml
+  target:
+    kind: StatefulSet
+    name: airflow-worker
+- path: create-user-job-patch.yaml
+  target:
+    kind: Job
+    name: airflow-create-user
+- path: db-connection-patch.yaml
+  target:
+    kind: ConfigMap
+    name: db-connection
+- path: config-patch.yaml
+  target:
+    kind: ConfigMap
+    name: airflow-config

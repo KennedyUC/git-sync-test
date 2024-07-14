@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: airflow-config
+  labels:
+    tier: airflow
+    component: config
+data:
+  airflow.cfg: |-
+    [api]
+    auth_backends = airflow.api.auth.backend.session
+    
+    [celery]
+    worker_concurrency = 16
+    
+    [celery_kubernetes_executor]
+    kubernetes_queue = kubernetes
+    
+    [core]
+    colored_console_log = False
+    dags_folder = /opt/airflow/dags/repo
+    executor = CeleryExecutor
+    load_examples = False
+    remote_logging = False
+
+    [database]
+    sql_alchemy_conn = postgresql://postgres:postgres@postgresdb.airflow-dev.svc:5432/postgres?sslmode=disable
+    
+    [kubernetes]
+    airflow_configmap = airflow-config
+    airflow_local_settings_configmap = airflow-config
+    multi_namespace_mode = False
+    pod_template_file = /opt/airflow/pod_templates/pod_template_file.yaml
+    worker_container_repository = apache/airflow
+    worker_container_tag = 2.7.2
+    
+    [logging]
+    colored_console_log = False
+    remote_logging = False
+    
+    [metrics]
+    statsd_host = airflow-statsd
+    statsd_on = True
+    statsd_port = 9125
+    statsd_prefix = airflow
+    
+    [scheduler]
+    run_duration = 41460
+    statsd_host = airflow-statsd
+    statsd_on = True
+    statsd_port = 9125
+    statsd_prefix = airflow
+    
+    [webserver]
+    enable_proxy_fix = True
+    rbac = True
+    
+  airflow_local_settings.py: |

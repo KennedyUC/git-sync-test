@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: airflow-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/KennedyUC/git-sync-test.git
+    targetRevision: prod
+    path: airflow/overlays/prod
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: airflow-prod
+  syncPolicy:
+    automated:
+      prune: true

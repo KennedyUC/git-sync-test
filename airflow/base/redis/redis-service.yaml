@@ -1,0 +1,19 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: airflow-redis
+  labels:
+    tier: airflow
+    component: redis
+    release: airflow
+spec:
+  type: ClusterIP
+  selector:
+    tier: airflow
+    component: redis
+    release: airflow
+  ports:
+    - name: redis-db
+      protocol: TCP
+      port: 6379
+      targetPort: 6379

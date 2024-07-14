@@ -1,0 +1,109 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: airflow-run-airflow-migrations
+  labels:
+    tier: airflow
+    component: db-migrations
+spec:
+  template:
+    metadata:
+      labels:
+        tier: airflow
+        component: run-airflow-migrations
+        release: airflow
+    spec:
+      securityContext:
+          runAsUser: 50000
+      restartPolicy: OnFailure
+      serviceAccountName: airflow-migrate-database-job
+      initContainers:
+        - name: check-db-connection
+          image: apache/airflow:2.7.2
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              python - <<EOF
+              import psycopg2
+              import os
+              import time
+
+              conn_string = os.getenv('SQL_ALCHEMY_CONN')
+
+              connected = False
+              
+              while not connected:
+                try:
+                    conn = psycopg2.connect(conn_string)
+                    conn.close()
+                    print("Successfully connected to the database!")
+                    connected = True
+                except Exception as e:
+                    print(f"Failed to connect to the database: {e}")
+                    print("Retrying in 5 seconds...")
+                    time.sleep(5)
+              EOF
+          env:
+            - name: SQL_ALCHEMY_CONN
+              valueFrom:
+                configMapKeyRef:
+                  name: db-connection
+                  key: connection
+      containers:
+        - name: run-airflow-migrations
+          image: apache/airflow:2.7.2
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - airflow db migrate
+          env:          
+            - name: AIRFLOW_CONN_AWS
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-connections
+                  key: AIRFLOW_CONN_AWS 
+            - name: AIRFLOW__CORE__FERNET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-fernet-key
+                  key: fernet-key
+            - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+              valueFrom:
+                configMapKeyRef:
+                  name: db-connection
+                  key: connection
+            - name: AIRFLOW_CONN_AIRFLOW_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: db-connection
+                  key: connection
+            - name: AIRFLOW__WEBSERVER__SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-webserver-secret-key
+                  key: webserver-secret-key
+            - name: AIRFLOW__CELERY__CELERY_RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-result-backend
+                  key: connection
+            - name: AIRFLOW__CELERY__RESULT_BACKEND
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-result-backend
+                  key: connection
+            - name: AIRFLOW__CELERY__BROKER_URL
+              valueFrom:
+                secretKeyRef:
+                  name: airflow-broker-url
+                  key: connection
+          volumeMounts:
+            - name: config
+              mountPath: "/opt/airflow/airflow.cfg"
+              subPath: airflow.cfg
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: airflow-config
